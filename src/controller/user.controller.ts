@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import pool from '../db/db';
+import dotenv from 'dotenv';
 import { SendMailOptions, SentMessageInfo} from 'nodemailer';
 import { transporter } from '../utils/nodemailer';
 
-
+dotenv.config();
 let globalRandomNumber: number | null = null;
 
 export const getAllUser = async () => {
@@ -30,7 +31,7 @@ export const sendEmail = async (req: Request, res: Response) => {
   // TODO: BORRAR EL RANDOMNUMBER QUE QUEDE IWAL AL MODALMAILVALIDATION
   // Detalles del correo electrónico
   const mailOptions: SendMailOptions = {
-    from: 'tomas.edhs@gmail.com',
+    from: process.env.USER_NODEMAILER,
     to: email,
     subject: 'Quantum Halo validate Email',
     html: `
