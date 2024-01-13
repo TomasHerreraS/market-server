@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { addUser } from './routes/user.route';
+import { sendEmailRoute, verificationCodeRoute, deleteGlobalNumberRoute, addUserRoute, getUniquesRoute } from './routes/user.route';
 
 const app = express();
 
@@ -9,6 +9,6 @@ app.use(express.json()); // Permite reconocer y analizar solicitudes en formato 
 app.use(cors());
 
 //routes
-app.use(addUser);
+app.use( sendEmailRoute, verificationCodeRoute, deleteGlobalNumberRoute, addUserRoute, getUniquesRoute);
 
 app.listen(3001);
