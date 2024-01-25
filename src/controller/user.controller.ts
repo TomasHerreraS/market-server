@@ -88,6 +88,29 @@ export const addUser = async (req: Request, res: Response) => {
   }
 };
 
+export const signIn = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+    const result = await pool.query('SELECT * FROM users WHERE email = $1 AND password = $2', [email, hashedPassword]);
+    console.log(result.rows);
+    console.log(result.rows[0]);
+    if (result.rows.length === 1) {
+      // Usuario autenticado, generamos un token JWT
+      const user = result.rows[0];
+      const token = jwt.sign({ userId: user.id, email: user.email }, 'tu_secreto_secreto', { expiresIn: '1h' });
+
+      res.json({ token });
+    } else {
+      res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+  } catch (error) {
+    console.error('Error al iniciar sesión: ', error);
+    res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+};
+
 export const getUniques = async (req: Request, res: Response) => {
   try {
     const response = await pool.query('SELECT PHONE, EMAIL FROM users');
