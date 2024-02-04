@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques } from '../controller/user.controller';
+import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques, getEmailLoggedIn } from '../controller/user.controller';
 
 const router = Router();
 
@@ -8,4 +8,5 @@ export const verificationCodeRoute = router.post('/verificationCode', verificati
 export const deleteGlobalNumberRoute = router.post('/deleteGlobalNumber', deleteGlobalNumber);
 export const addUserRoute = router.post('/addUser', addUser);
 export const signInRoute = router.post('/signIn', signIn);
+export const getEmailLoggedInRoute = router.post('/getEmailLoggedIn', getEmailLoggedIn);
 export const getUniquesRoute = router.get('/getUniques', getUniques);
