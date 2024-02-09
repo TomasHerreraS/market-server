@@ -3,10 +3,12 @@ import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUn
 
 const router = Router();
 
-export const sendEmailRoute = router.post('/sendEmail', sendEmail);
-export const verificationCodeRoute = router.post('/verificationCode', verificationCode);
-export const deleteGlobalNumberRoute = router.post('/deleteGlobalNumber', deleteGlobalNumber);
-export const addUserRoute = router.post('/addUser', addUser);
-export const signInRoute = router.post('/signIn', signIn);
-export const getEmailLoggedInRoute = router.post('/getEmailLoggedIn', getEmailLoggedIn);
-export const getUniquesRoute = router.get('/getUniques', getUniques);
+router.post('/sendEmail', sendEmail);
+router.post('/verificationCode', verificationCode);
+router.post('/deleteGlobalNumber', deleteGlobalNumber);
+router.post('/addUser', addUser);
+router.post('/signIn', signIn);
+router.post('/getEmailLoggedIn', getEmailLoggedIn);
+router.get('/getUniques', getUniques);
+
+export default router;
