@@ -9,16 +9,6 @@ import { transporter } from '../utils/nodemailer';
 dotenv.config();
 let globalRandomNumber: number | null = null;
 
-export const getAllUser = async () => {
-  try {
-    const response = await pool.query('SELECT * FROM users');
-    return response.rows;
-  } catch (error) {
-    console.log(error);
-    throw error; // Asegúrate de propagar el error para manejarlo adecuadamente en otro lugar si es necesario
-  }
-};
-
 export const sendEmail = async (req: Request, res: Response) => {
   const { email } = req.body;
   if (globalRandomNumber !== null) {
@@ -77,7 +67,7 @@ export const addUser = async (req: Request, res: Response) => {
   const { name, lastname, rol_id, email, password, phone, state, city, address } = req.body;
   try {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-    await pool.query('INSERT INTO "user" ("name", "lastname", "rol_id", "email", "password", "phone", "state", "city", "address") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+    await pool.query('INSERT INTO "user" ("firstname", "lastname", "rol_id", "email", "password", "phone", "state", "city", "address") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
       [name, lastname, rol_id, email, hashedPassword, phone, state, city, address]);
 
     res.json({ name, lastname, email, phone, state, city, address });
