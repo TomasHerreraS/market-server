@@ -4,7 +4,7 @@ import { io } from '../index';
 
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const result = await pool.query('SELECT * FROM product ORDER BY product_id ASC;');
+    const result = await pool.query('SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, favorite, image[1] AS image,user_id FROM product ORDER BY product_id ASC;');
     // Convertir los datos binarios de la imagen a base64
     result.rows.forEach(product => {
       product.image = Buffer.from(product.image).toString('base64');
