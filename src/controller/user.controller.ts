@@ -9,18 +9,27 @@ import { transporter } from '../utils/nodemailer';
 dotenv.config();
 let globalRandomNumber: number | null = null;
 
-export const getAllUser = async () => {
+export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const response = await pool.query('SELECT * FROM users');
-    return response.rows;
+    const response = await pool.query('SELECT * FROM "user"');
+    res.status(200).json(response.rows);
   } catch (error) {
-    console.log(error);
-    throw error; // Asegúrate de propagar el error para manejarlo adecuadamente en otro lugar si es necesario
+    res.status(500).json({ error: error });
   }
 };
 
+export const deleteUser = async (req: Request, res: Response) => {
+ const { email } = req.body;
+  try {
+    const response = await pool.query('DELETE FROM "user" WHERE email = $1;', [email])
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error })
+  }
+}
+
 export const sendEmail = async (req: Request, res: Response) => {
-  const { email } = req.body;
+  const { email, firstname } = req.body;
   if (globalRandomNumber !== null) {
     globalRandomNumber = null;
   }
@@ -36,7 +45,7 @@ export const sendEmail = async (req: Request, res: Response) => {
     subject: 'Quantum Halo validate Email',
     html: `
       <div style="border-radius: 5px; border: 1px solid black; background-color: #f0f0f0; padding: 20px;">
-        <p>¡Hola!</p>
+        <p>Hey ${firstname}</p>
         <p>Este es el código de verificación: ${globalRandomNumber}</p>
       </div>
     `
@@ -45,7 +54,7 @@ export const sendEmail = async (req: Request, res: Response) => {
   try {
     // Enviar el correo electrónico
     const info: SentMessageInfo = await transporter.sendMail(mailOptions);
-    res.status(200).send('Email send correctly');
+    res.status(200).send('Email sent correctly');
     console.log('Correo electrónico enviado: ' + info.response);
   } catch (error) {
     console.error('Error al enviar el correo electrónico:', error);
@@ -74,13 +83,14 @@ export const verificationCode = async(req: Request, res: Response) => {
 }
 
 export const addUser = async (req: Request, res: Response) => {
-  const { name, lastname, rol_id, email, password, phone, state, city, address } = req.body;
+  const { firstname, lastname, rol_id, email, password, phone, state, city, address } = req.body;
+  const date : Date = new Date();
   try {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-    await pool.query('INSERT INTO "user" ("name", "lastname", "rol_id", "email", "password", "phone", "state", "city", "address") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-      [name, lastname, rol_id, email, hashedPassword, phone, state, city, address]);
+    await pool.query('INSERT INTO "user" ("firstname", "lastname", "rol_id", "email", "password", "phone", "state", "city", "address", "date") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [firstname, lastname, rol_id, email, hashedPassword, phone, state, city, address, date]);
 
-    res.json({ name, lastname, email, phone, state, city, address });
+    res.json({ firstname, lastname, email, phone, state, city, address });
   } catch (error) {
     console.error('Error al crear usuario o enviar correo: ', error);
     res.status(500).json({ error: 'Error al crear usuario o enviar correo electrónico' });
@@ -97,7 +107,7 @@ export const signIn = async (req: Request, res: Response) => {
       // Usuario autenticado, generamos un token JWT
       if (process.env.JWT_SECRET_KEY) { // Validamos que existe la key dentro del env
         const user = result.rows[0];
-        const token = jwt.sign({ userId: user.id, name: user.name, lastname: user.lastname, email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id, firstname: user.firstname, lastname: user.lastname, email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
         res.json({ token });
       }
 
@@ -110,7 +120,7 @@ export const signIn = async (req: Request, res: Response) => {
   }
 };
 
-export const getEmailLoggedIn = async (req: Request, res: Response) => {
+export const getRole = async (req: Request, res: Response) => {
   const { email } = req.body;
   try {
     const result = await pool.query('SELECT rol_id FROM "user" WHERE email = $1', [email])

@@ -8,6 +8,6 @@ export const transporter: Transporter  = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
     user: process.env.USER_NODEMAILER, // Tu dirección de correo
-    pass: process.env.PASS_NODEMAILER // Tu contraseña de correo
+    pass: process.env.PASS_NODEMAILER// Tu contraseña de correo
   }
 });

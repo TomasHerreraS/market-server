@@ -37,3 +37,50 @@ export const buyProduct = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al realizar la compra' });
   }
 }
+
+  export const deleteProduct = async (req: Request, res: Response) => {
+    const { product_id } = req.body;
+    try {
+      await pool.query('DELETE FROM product WHERE product_id = $1;', [product_id])
+      res.status(200).json({ message: 'Product deleted successfully' });
+    } catch(error) {
+      console.log(error);
+      res.status(500).json({ error: "Error trying to delete product" })
+    }
+  }
+
+  export const addProduct = async (req: Request, res: Response) => {
+    const { name, quantity, description, discount, price, images, category, brand } = req.body;
+    const release_date = new Date();
+    try {
+      await pool.query('INSERT INTO product("name", "release_date", "quantity", "description", "discount", "price", "images", "category", "brand") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9);',
+      [name, release_date, quantity, description, discount, price, images, category, brand])
+      res.status(200).json({ message: 'Product added successfully' });
+    } catch (error) {
+      res.status(500).json({ error: "Error trying to add product" })
+
+    }
+  }
+
+  export const updateProduct = async (req: Request, res: Response) => {
+    const { column, newData, product_id } = req.body;
+    try {
+      await pool.query(`UPDATE product SET ${column} = ${newData}  WHERE product_id = $1`,[product_id]);
+      res.status(200).json({ message: 'Product updated successfully' });
+    } catch (error) {
+      res.status(500).json({ error: "Error trying to update product" })
+    }
+  }
+
+  export const getProductById = async (req: Request, res: Response) => {
+    const { product_id } = req.body;
+    try {
+      const result = await pool.query('SELECT * FROM product WHERE product_id = $1',[product_id])
+      result.rows.forEach(product => {
+        product.images = product.images.map((image: Buffer) => Buffer.from(image).toString('base64'));
+        res.json(result)
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Error trying to find product" })
+    }
+  }

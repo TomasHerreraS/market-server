@@ -1,6 +1,1 @@
-#.env
-DB_DATABASE=market-database
-DB_PORT=5432
-DB_HOST=::1
-DB_PASSWORD=07Locked
-DB_USER=Stanco27
+.env
