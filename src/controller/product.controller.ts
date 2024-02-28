@@ -13,6 +13,29 @@ export const getAllProducts = async (req: Request, res: Response) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
+  }
+}
+
+export const getProductLength = async (req: Request, res: Response) => {
+  try{
+    const result = await pool.query('SELECT COUNT(*) FROM product;');
+    res.json(result.rows[0].count);
+  } catch(error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
+  }
+}
+
+export const getProductTable = async (req: Request, res: Response) => {
+  try{
+    const { limit, offset } = req.query;
+    const result = await pool.query(`SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, favorite, image[1] as image, user_id FROM product
+    ORDER BY product_id ASC LIMIT $1 OFFSET $2;`, [limit, offset]);
+    res.json(result.rows)
+  }catch(error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
   }
 }
 
@@ -22,6 +45,7 @@ export const getQuantity = async (req: Request, res: Response) => {
       res.json(result.rows); // Enviar el valor como una cadena
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'An error occurred while processing the request.' });
   }
 }
 
@@ -34,6 +58,6 @@ export const buyProduct = async (req: Request, res: Response) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al realizar la compra' });
+    res.status(500).json({ error: 'Error when making purchase' });
   }
 }
