@@ -1,28 +1,66 @@
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import userRouter from './routes/user.route';
 import productRouter from './routes/product.route';
+import multer from 'multer';
+import bodyParser from 'body-parser';
+import { addProduct } from './controller/product.controller';
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads'); // Set the destination folder for uploaded files
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Set the file name for uploaded files 
+  }
+});
+
+// Initialize Multer middleware for handling file uploads
+export const upload = multer({ storage: storage });
 
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
-app.use(express.json()); // Permite reconocer y analizar solicitudes en formato JSON
-// Middleware para habilitar CORS
+// Middleware for enabling CORS
 app.use(cors());
 
+// Middleware for logging request information
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  const contentLength = req.headers['content-length'];
+  if (contentLength) {
+    console.log(`Payload Size: ${contentLength} bytes`);
+  }
+  next();
+});
 
+app.post('/addProduct', upload.array('image', 3), async (req, res) => {
+  try {
+    await addProduct(req, res);
+  } catch (error) {
+    console.error("Error in route handler:", error);
+    res.status(500).json({ error: "Error handling product upload" });
+  }
+});
+
+// Middleware for parsing JSON and urlencoded request bodies using bodyParser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Initialize Socket.IO server
 const io = new Server(server, { cors: { origin: '*' } });
 
-
-// Exporta el objeto 'io' para que esté disponible en otros archivos
+// Export 'io' object for use in other files
 export { io };
 
-//routes
-app.use( userRouter, productRouter );
+// Routes
+app.use(userRouter);
+app.use(productRouter);
 
+// Start the server
 server.listen(PORT, () => {
-  console.log(`Servidor de Socket.IO escuchando en el puerto ${PORT}`);
+  console.log(`Socket.IO server listening on port ${PORT}`);
 });

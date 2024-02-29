@@ -124,9 +124,19 @@ export const getRole = async (req: Request, res: Response) => {
   const { email } = req.body;
   try {
     const result = await pool.query('SELECT rol_id FROM "user" WHERE email = $1', [email])
-    res.json(result.rows[0]);
+    res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error(error);
+  }
+}
+
+export const getUserId = async (req: Request, res: Response) => {
+  const { email } = req.body;
+  try {
+    const result = await pool.query('SELECT user_id FROM "user" WHERE email = $1', [email])
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get user id" });
   }
 }
 
