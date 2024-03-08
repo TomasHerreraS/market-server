@@ -1,35 +1,23 @@
 import { Request, Response } from 'express';
 import pool from '../db/db';
-import { io, upload } from '../index';
+import { io } from '../index';
 import fs from 'fs'
 import path from 'path'
-
-// const multer = require('multer');
-// const storage = multer.diskStorage({
-//   destination: (req: Request, file: Express.Multer.File, cb: Callback) => {
-//     cb(undefined, 'Images')
-//   },
-//   filename: (req: Request, file: Express.Multer.File, cb: Callback) => {
-//     cb(undefined, Date.now() + path.extname(file.originalname))
-//   }
-// })
-
-// const upload = multer({ storage: storage });
 
 export const getAllProducts = async (req: Request, res: Response) => {
   const { product_id } = req.body;
   try {
     if (product_id){
-      const result = await pool.query('SELECT *, image[1] as image FROM product WHERE product_id = ANY($1)', ([product_id]))
+      const result = await pool.query('SELECT image1, "name", "quantity", "description", "release_date", "price", "brand", "category","discount", "product_id" FROM product WHERE product_id = ANY($1)', ([product_id]))
       result.rows.forEach(product => {
-        product.image1 = Buffer.from(product.image).toString('base64');
+        product.image1 = Buffer.from(product.image1).toString('base64');
       });
       res.json(result.rows);
     } else {
-      const result = await pool.query('SELECT *, image[1] as image FROM product;');
+      const result = await pool.query('SELECT image1, "name", "quantity", "description", "release_date", "price", "brand", "category","discount", "product_id" FROM product;');
       // Convertir los datos binarios de la imagen a base64
       result.rows.forEach(product => {
-        product.image1 = Buffer.from(product.image).toString('base64');
+        product.image1 = Buffer.from(product.image1).toString('base64');
       });
       // Enviar los datos actualizados de los productos al cliente
       res.json(result.rows);
@@ -82,18 +70,29 @@ export const buyProduct = async (req: Request, res: Response) => {
     try {
       // Assuming images are uploaded using multer and stored in req.files
       const files = req.files as Express.Multer.File[];
-      const images: Buffer[] = [];
+      let image1: Buffer | undefined;
+      let image2: Buffer | undefined;
+      let image3: Buffer | undefined;
   
-      for (const file of files) {
+      for (let i = 0; i < files.length ; i++) {
+        const file = files[i]
         const filePath = path.resolve(__dirname, '..','..', 'uploads', file.filename);
         const fileData = fs.readFileSync(filePath);
-        images.push(fileData);
+
+        if(i == 0) {
+          image1 = fileData;
+        }
+        else if(i == 1) {
+          image2 = fileData;
+        } else {
+          image3 = fileData;
+        }
       }
-  
+
       // Perform database insertion
       await pool.query(
-        'INSERT INTO product("name", "release_date", "quantity", "description", "discount", "price", "category", "brand", "image") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)',
-        [name, release_date, quantity, description, discount, price, category, brand, images]
+        'INSERT INTO product("name", "release_date", "quantity", "description", "discount", "price", "category", "brand", "image1", "image2", "image3") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+        [name, release_date, quantity, description, discount, price, category, brand, image1, image2, image3]
       );
 
       for (const file of files) {
@@ -125,18 +124,18 @@ export const buyProduct = async (req: Request, res: Response) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Product not found" });
         }
-        
-        const product = result.rows[0];
-        const images = product.image.map((image: Buffer, index: number) => ({
-            [`image${index + 1}`]: Buffer.from(image).toString('base64')
-        }));
-        
-        const productWithImages = {
-            ...product,
-            ...Object.assign({}, ...images)
-        };
-
-        res.json(productWithImages);
+        result.rows.forEach(product => {
+          if(product.image1){
+            product.image1 = Buffer.from(product.image1).toString('base64');
+          }
+          if(product.image2){
+            product.image2 = Buffer.from(product.image2).toString('base64');
+          }
+          if(product.image3){
+            product.image3 = Buffer.from(product.image3).toString('base64');
+          }
+        });
+        res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Error trying to find product" });
@@ -156,8 +155,11 @@ export const buyProduct = async (req: Request, res: Response) => {
       const favoritesData = await pool.query('SELECT favorite FROM "user" WHERE user_id = $1;', [user_id]);
       const favorites = favoritesData.rows.map(row => row.favorite);
 
-      const result = await pool.query('SELECT *, image[1] AS image FROM product WHERE product_id = ANY($1)', [favorites])
-      res.status(200).json(result.rows)
+      const result = await pool.query('SELECT "price", "discount", "quantity", "name", "image1" FROM product WHERE product_id = ANY($1)', [favorites])
+      result.rows.forEach(product => {
+        product.image1 = Buffer.from(product.image1).toString('base64');
+      });
+      res.status(200).json(result.rows);
       
     } catch (error) {
       res.status(500).json({ error: "Failed to get favorite" })

@@ -5,7 +5,6 @@ import { Server } from 'socket.io';
 import userRouter from './routes/user.route';
 import productRouter from './routes/product.route';
 import multer from 'multer';
-import bodyParser from 'body-parser';
 import { addProduct } from './controller/product.controller';
 
 const storage = multer.diskStorage({
@@ -27,6 +26,10 @@ const PORT = process.env.PORT || 3001;
 // Middleware for enabling CORS
 app.use(cors());
 
+// Middleware for parsing JSON and urlencoded request bodies using bodyParser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Middleware for logging request information
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
@@ -46,9 +49,6 @@ app.post('/addProduct', upload.array('image', 3), async (req, res) => {
   }
 });
 
-// Middleware for parsing JSON and urlencoded request bodies using bodyParser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Initialize Socket.IO server
 const io = new Server(server, { cors: { origin: '*' } });
@@ -57,8 +57,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 export { io };
 
 // Routes
-app.use(userRouter);
-app.use(productRouter);
+app.use(userRouter, productRouter);
 
 // Start the server
 server.listen(PORT, () => {
