@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques, getEmailLoggedIn } from '../controller/user.controller';
+import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques, getRole, getAllUsers, deleteUser, getUserId } from '../controller/user.controller';
 
 const router = Router();
 
@@ -8,7 +8,10 @@ router.post('/verificationCode', verificationCode);
 router.post('/deleteGlobalNumber', deleteGlobalNumber);
 router.post('/addUser', addUser);
 router.post('/signIn', signIn);
-router.post('/getEmailLoggedIn', getEmailLoggedIn);
+router.post('/getRole', getRole);
 router.get('/getUniques', getUniques);
+router.get('/getAllUsers', getAllUsers);
+router.post('/deleteUser', deleteUser);
+router.post('/getUserId', getUserId);
 
 export default router;
