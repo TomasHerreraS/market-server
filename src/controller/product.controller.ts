@@ -42,7 +42,7 @@ export const getProductLength = async (req: Request, res: Response) => {
 export const getProductTable = async (req: Request, res: Response) => {
   try{
     const { limit, offset } = req.query;
-    const result = await pool.query(`SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, favorite, image[1] as image, user_id FROM product
+    const result = await pool.query(`SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, favorite, image1, image2, image3, user_id FROM product
     ORDER BY product_id ASC LIMIT $1 OFFSET $2;`, [limit, offset]);
     res.json(result.rows)
   }catch(error) {

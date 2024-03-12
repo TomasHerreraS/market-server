@@ -4,6 +4,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import userRouter from './routes/user.route';
 import productRouter from './routes/product.route';
+import historyRouter from './routes/history.route';
 import multer from 'multer';
 import { addProduct } from './controller/product.controller';
 
@@ -57,7 +58,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 export { io };
 
 // Routes
-app.use(userRouter, productRouter);
+app.use(userRouter, productRouter, historyRouter);
 
 // Start the server
 server.listen(PORT, () => {
