@@ -49,20 +49,21 @@ export const getHistoryTableByFilter = async (req: Request, res: Response) => {
     }
     condition = text.join(' ')
     // res.json(condition);
-    // TODO: Hacer otra const sacada de req.query, que sea date{initial, final}, y aplicarla aquí abajo luego de condition : 
-    res.json(`SELECT * FROM history
+    // res.json(`SELECT * FROM history
+    // ${filledValuesLength > 0 || (initDate.length > 0 && finalDate.length > 0) ? 'WHERE' : ''} 
+    // ${(condition.length > 0 && (initDate.length === 0 || finalDate.length === 0)) ? condition :
+    //   (initDate.length > 0 && finalDate.length > 0 ? `date BETWEEN '${initDate}' AND '${finalDate}'` : '')}
+    // ${condition.length > 0 && (initDate.length > 0 && finalDate.length > 0) ? `AND ${condition}` : ''} 
+    // ORDER BY history_id 
+    // LIMIT $1 OFFSET $2`);
+    const result = await pool.query(`SELECT * FROM history
     ${filledValuesLength > 0 || (initDate.length > 0 && finalDate.length > 0) ? 'WHERE' : ''} 
     ${(condition.length > 0 && (initDate.length === 0 || finalDate.length === 0)) ? condition :
       (initDate.length > 0 && finalDate.length > 0 ? `date BETWEEN '${initDate}' AND '${finalDate}'` : '')}
     ${condition.length > 0 && (initDate.length > 0 && finalDate.length > 0) ? `AND ${condition}` : ''} 
     ORDER BY history_id 
-    LIMIT $1 OFFSET $2`);
-    // const result = await pool.query(`SELECT * from history
-    // ${filledValuesLength > 0 || initDate.length > 0 && finalDate.length ? 'WHERE' : ''} 
-    // ${condition.length > 0 ? condition : initDate.length > 0 && finalDate.length > 0 ? `date BETWEEN '${initDate}' AND '${finalDate}'`: ''} 
-    // ORDER BY history_id 
-    // LIMIT $1 OFFSET $2`, [limit, offset]);
-    // res.json(result.rows)
+    LIMIT $1 OFFSET $2`, [limit, offset]);
+    res.json(result.rows)
   }catch(error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred while processing the request.'})
