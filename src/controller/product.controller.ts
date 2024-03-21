@@ -64,7 +64,6 @@ export const buyProduct = async (req: Request, res: Response) => {
 
   export const addProduct = async (req: Request, res: Response) => {
     const { name, discount, quantity, description, price, brand, category } = req.body;
-    console.log(req.body); // Check form data received
     const release_date = new Date();
   
     try {
