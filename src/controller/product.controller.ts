@@ -85,21 +85,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
   }
 }
 
-  export const addProduct = async (req: Request, res: Response) => {
-    const { name, discount, quantity, description, price, brand, category } = req.body;
-    const release_date = new Date();
-  
-    try {
-      // Assuming images are uploaded using multer and stored in req.files
-      const files = req.files as Express.Multer.File[];
-      let image1: Buffer | undefined;
-      let image2: Buffer | undefined;
-      let image3: Buffer | undefined;
-  
-      for (let i = 0; i < files.length ; i++) {
-        const file = files[i]
-        const filePath = path.resolve(__dirname, '..','..', 'uploads', file.filename);
-        const fileData = fs.readFileSync(filePath);
+export const addProduct = async (req: Request, res: Response) => {
+  const { name, discount, quantity, description, price, brand, category } = req.body;
+  const release_date = new Date();
 
   try {
     // Assuming images are uploaded using multer and stored in req.files
@@ -112,6 +100,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
       const file = files[i]
       const filePath = path.resolve(__dirname, '..','..', 'uploads', file.filename);
       const fileData = fs.readFileSync(filePath);
+
       if(i == 0) {
         image1 = fileData;
       }
@@ -121,11 +110,13 @@ export const deleteProduct = async (req: Request, res: Response) => {
         image3 = fileData;
       }
     }
+
     // Perform database insertion
     await pool.query(
       'INSERT INTO product("name", "release_date", "quantity", "description", "discount", "price", "category", "brand", "image1", "image2", "image3") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
       [name, release_date, quantity, description, discount, price, category, brand, image1, image2, image3]
     );
+
     for (const file of files) {
       const filePath = path.resolve(__dirname, '..', '..', 'uploads', file.filename);
       fs.unlinkSync(filePath);
