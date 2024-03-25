@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques, getRole, getAllUsers, deleteUser, getUserId } from '../controller/user.controller';
+import { sendEmail, verificationCode, deleteGlobalNumber, addUser, signIn, getUniques, getRole, getAllUsers, deleteUser, getUserId, getCheckExists, } from '../controller/user.controller';
 
 const router = Router();
 
@@ -13,5 +13,6 @@ router.get('/getUniques', getUniques);
 router.get('/getAllUsers', getAllUsers);
 router.post('/deleteUser', deleteUser);
 router.post('/getUserId', getUserId);
+router.post('/getCheckExists', getCheckExists);
 
 export default router;

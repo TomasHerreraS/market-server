@@ -148,3 +148,29 @@ export const getUniques = async (req: Request, res: Response) => {
     res.status(500).json({ error: error });
   }
 };
+
+export const getCheckExists = async (req: Request, res: Response) => {
+  const { phone, email } = req.body;
+  try {
+    const result = await pool.query('SELECT phone, email FROM "user" WHERE phone = $1 OR email = $2', [phone, email]);
+    if (result.rows.length > 0) {
+      const exists = {
+        email: false,
+        phone: false
+      };
+      result.rows.forEach((user) => {
+        if (user.email === email) {
+          exists.email = true;
+        }
+        if (user.phone === phone) {
+          exists.phone = true;
+        }
+      });
+      res.status(200).json(exists);
+    } else {
+      res.status(200).json({ email: false, phone: false });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
