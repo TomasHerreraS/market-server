@@ -45,7 +45,6 @@ export const sendEmail = async (req: Request, res: Response) => {
     subject: 'Quantum Halo validate Email',
     html: `
       <div style="border-radius: 5px; border: 1px solid black; background-color: #f0f0f0; padding: 20px;">
-        <p>Hey ${firstname}</p>
         <p>Este es el código de verificación: ${globalRandomNumber}</p>
       </div>
     `
@@ -83,12 +82,12 @@ export const verificationCode = async(req: Request, res: Response) => {
 }
 
 export const addUser = async (req: Request, res: Response) => {
-  const { firstname, lastname, rol_id, email, password, phone, state, city, address } = req.body;
+  const { firstname, lastname, role_id, email, password, phone, state, city, address } = req.body;
   const date : Date = new Date();
   try {
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-    await pool.query('INSERT INTO "user" ("firstname", "lastname", "rol_id", "email", "password", "phone", "state", "city", "address", "date") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-      [firstname, lastname, rol_id, email, hashedPassword, phone, state, city, address, date]);
+    await pool.query('INSERT INTO "user" ("firstname", "lastname", "role_id", "email", "password", "phone", "state", "city", "address", "date") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+      [firstname, lastname, role_id, email, hashedPassword, phone, state, city, address, date]);
 
     res.json({ firstname, lastname, email, phone, state, city, address });
   } catch (error) {
