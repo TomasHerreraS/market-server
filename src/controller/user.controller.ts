@@ -122,7 +122,7 @@ export const signIn = async (req: Request, res: Response) => {
 export const getRole = async (req: Request, res: Response) => {
   const { email } = req.body;
   try {
-    const result = await pool.query('SELECT rol_id FROM "user" WHERE email = $1', [email])
+    const result = await pool.query('SELECT role_id FROM "user" WHERE email = $1', [email])
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error(error);

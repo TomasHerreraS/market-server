@@ -42,8 +42,11 @@ export const getProductLength = async (req: Request, res: Response) => {
 export const getProductTable = async (req: Request, res: Response) => {
   try{
     const { limit, offset } = req.query;
-    const result = await pool.query(`SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, favorite, image1, image2, image3, user_id FROM product
+    const result = await pool.query(`SELECT product_id, "name", release_date, quantity, description, category, brand, discount, price, image1, image2, image3, user_id FROM product
     ORDER BY product_id ASC LIMIT $1 OFFSET $2;`, [limit, offset]);
+    result.rows.forEach(product => {
+      product.image1 = Buffer.from(product.image1).toString('base64');
+    });
     res.json(result.rows)
   }catch(error) {
     console.error(error);
